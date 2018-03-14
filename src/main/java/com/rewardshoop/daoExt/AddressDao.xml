@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.rewardshoop.daoExt.AddressDao">
+    <resultMap id="getAllAddressDetail" type="com.rewardshoop.response.AddressResponse">
+        <id column="provinceid" property="provinceId" javaType="java.lang.String"/>
+        <result column="province" property="province" javaType="java.lang.String"/>
+        <collection property="cities" ofType="com.rewardshoop.response.Cities">
+            <id column="cityid" property="cityId" javaType="java.lang.String"/>
+            <result column="city" property="city" javaType="java.lang.String"/>
+            <collection property="areas" ofType="com.rewardshoop.response.Areas">
+                <id column="areaid" property="areaId" javaType="java.lang.String"/>
+                <result column="area" property="area" javaType="java.lang.String"/>
+            </collection>
+        </collection>
+
+    </resultMap>
+    <select id="getAllAddressDetail" resultMap="getAllAddressDetail">
+        SELECT
+        p.`provinceid`,
+        p.`province` ,
+        c.`cityid`,
+        c.`city`,
+        a.`areaid`,
+        a.`area`
+        FROM
+        provinces p
+        LEFT JOIN
+        cities c
+        ON
+        p.`provinceid`=c.`provinceid`
+        LEFT JOIN
+        areas a
+        ON
+        a.`cityid`=c.`cityid`
+    </select>
+</mapper>

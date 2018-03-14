@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.rewardshoop.daoExt.GoodsDao">
+    <resultMap id="getTypeList" type="com.rewardshoop.response.TypeListResponse">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="type_name" property="name" javaType="java.lang.String"/>
+        <result column="type_pic" property="pic" javaType="java.lang.String"/>
+        <collection property="goods" ofType="com.rewardshoop.model.Goods">
+            <id column="goodsId" property="id" javaType="java.lang.Integer"/>
+            <result column="goods_name" property="goodsName" javaType="java.lang.String"/>
+            <result column="pic" property="pic" javaType="java.lang.String"/>
+            <result column="consume_point" property="consumePoint" javaType="java.lang.Integer"/>
+            <result column="prepay_point" property="prepayPoint" javaType="java.lang.Integer"/>
+            <result column="market_price" property="marketPrice" javaType="java.lang.Integer"/>
+        </collection>
+    </resultMap>
+
+    <select id="getTypeList" resultMap="getTypeList">
+        SELECT
+            t.id,
+            t.type_name,
+            t.type_pic,
+            g.id goodsId,
+            g.goods_name,
+            g.pic,
+            g.consume_point,
+            g.prepay_point,
+            g.market_price
+        FROM
+            type t
+        LEFT JOIN
+            goods g
+        ON
+            t.id=g.type_id
+        WHERE
+            t.id > 1
+        ORDER BY
+            t.id
+    </select>
+
+    <resultMap id="getGoodsDetailById" type="com.rewardshoop.response.GoodsDetailResponse">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="goods_name" property="goodsName" javaType="java.lang.String"/>
+        <result column="consume_point" property="consumePoint" javaType="java.lang.Integer"/>
+        <result column="prepay_point" property="prepayPoint" javaType="java.lang.Integer"/>
+        <result column="market_price" property="marketPrice" javaType="java.lang.Integer"/>
+        <result column="pic" property="pic" javaType="java.lang.String"/>
+        <result column="factory_name" property="factoryName" javaType="java.lang.String"/>
+        <result column="model" property="model" javaType="java.lang.String"/>
+        <result column="content" property="content" javaType="java.lang.String"/>
+        <result column="introduction" property="introduction" javaType="java.lang.String"/>
+        <result column="introduction_pic" property="introductionPic" javaType="java.lang.String"/>
+        <result column="stock" property="stock" javaType="java.lang.Integer"/>
+    </resultMap>
+    <select id="getGoodsDetailById" resultMap="getGoodsDetailById">
+        SELECT
+            g.id,
+            g.goods_name,
+            g.consume_point,
+            g.prepay_point,
+            g.market_price,
+            g.pic,
+            gd.factory_name,
+            gd.model,
+            gd.content,
+            gd.introduction,
+            gd.introduction_pic,
+            gd.stock
+        FROM
+            goods g,goods_detail gd
+        WHERE
+            g.id=gd.goods_id AND g.state=1 AND g.id = #{id};
+    </select>
+</mapper>

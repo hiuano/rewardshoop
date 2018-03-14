@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.rewardshoop.daoExt.OrdersDao">
+    <resultMap id="getOrdersByUserId" type="com.rewardshoop.response.OrdersResponse">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="order_number" property="orderNumber" javaType="java.lang.String"/>
+        <result column="desc" property="stateDesc" javaType="java.lang.String"/>
+        <result column="state" property="state" javaType="java.lang.Integer"/>
+        <result column="total_consume_point" property="totalConsumePoint" javaType="java.lang.Integer"/>
+        <result column="total_prepay_point" property="totalPrepayPoint" javaType="java.lang.Integer"/>
+        <collection property="goods" ofType="com.rewardshoop.response.OrdersGoods">
+            <id column="gId" property="id" javaType="java.lang.Integer"/>
+            <id column="pay_type" property="payWay" javaType="java.lang.Integer"/>
+            <id column="pwdesc" property="payWayDesc" javaType="java.lang.String"/>
+            <result column="num" property="num" javaType="java.lang.Integer"/>
+            <result column="money_count" property="pointCount" javaType="java.lang.Integer"/>
+            <result column="pic" property="pic" javaType="java.lang.String"/>
+            <result column="goods_name" property="goodsName" javaType="java.lang.String"/>
+            <result column="type_id" property="typeId" javaType="java.lang.Integer"/>
+            <result column="type_name" property="typeName" javaType="java.lang.String"/>
+            <result column="consume_point" property="consumePoint" javaType="java.lang.Integer"/>
+            <result column="prepay_point" property="prepayPoint" javaType="java.lang.Integer"/>
+        </collection>
+    </resultMap>
+    <select id="getAllOrdersByUserId" resultMap="getOrdersByUserId">
+        SELECT
+            o.`id`,
+            o.`order_number`,
+            od.`num`,
+            o.`state`,
+            osd.`desc`,
+            o.`total_consume_point`,
+            o.`total_prepay_point`,
+            gpwd.`desc` pwdesc,
+            od.`pay_type`,
+            od.`money_count`,
+            g.`id`      gId,
+            g.`pic`,
+            g.`goods_name`,
+            g.`type_id`,
+            t.`type_name`,
+            g.`consume_point`,
+            g.`prepay_point`
+        FROM
+            orders o,
+            orders_detail od,
+            orders_state_desc osd,
+            goods g, TYPE t,
+            goods_pay_way_desc gpwd
+        WHERE
+            o.`id` = od.`orders_id` AND
+            o.`state` = osd.`state` AND
+            od.`goods_id` = g.`id` AND
+            g.`type_id` = t.`id` AND
+            od.`pay_type` = gpwd.`pay_way` AND
+            o.`user_id` = #{userId}
+        ORDER BY
+            o.`order_number` DESC;
+    </select>
+
+    <select id="getUnpaidOrdersByUserId" resultMap="getOrdersByUserId">
+        SELECT
+            o.`id`,
+            o.`order_number`,
+            od.`num`,
+            o.`state`,
+            osd.`desc`,
+            o.`total_consume_point`,
+            o.`total_prepay_point`,
+            gpwd.`desc` pwdesc,
+            od.`pay_type`,
+            od.`money_count`,
+            g.`id`      gId,
+            g.`pic`,
+            g.`goods_name`,
+            g.`type_id`,
+            t.`type_name`,
+            g.`consume_point`,
+            g.`prepay_point`
+        FROM
+            orders o,
+            orders_detail od,
+            orders_state_desc osd,
+            goods g, TYPE t,
+            goods_pay_way_desc gpwd
+        WHERE
+            o.`id` = od.`orders_id` AND
+            o.`state` = osd.`state` AND
+            od.`goods_id` = g.`id` AND
+            g.`type_id` = t.`id` AND
+            od.`pay_type` = gpwd.`pay_way` AND
+            o.`user_id` = #{userId} AND
+            o.state = 1
+        ORDER BY
+            o.`order_number` DESC;
+    </select>
+
+    <select id="getUnacceptedOrdersByUserId" resultMap="getOrdersByUserId">
+        SELECT
+            o.`id`,
+            o.`order_number`,
+            o.`state`,
+            osd.`desc`,
+            o.`total_consume_point`,
+            o.`total_prepay_point`,
+            gpwd.`desc` pwdesc,
+            od.`num`,
+            od.`pay_type`,
+            od.`money_count`,
+            g.`id`      gId,
+            g.`pic`,
+            g.`goods_name`,
+            g.`type_id`,
+            t.`type_name`,
+            g.`consume_point`,
+            g.`prepay_point`
+        FROM
+            orders o,
+            orders_detail od,
+            orders_state_desc osd,
+            goods g, TYPE t,
+            goods_pay_way_desc gpwd
+        WHERE
+            o.`id` = od.`orders_id` AND
+            o.`state` = osd.`state` AND
+            od.`goods_id` = g.`id` AND
+            g.`type_id` = t.`id` AND
+            od.`pay_type` = gpwd.`pay_way` AND
+            o.`user_id` = #{userId} AND
+            (o.`state` = 2 OR o.`state` = 4)
+        ORDER BY
+            o.`order_number` DESC;
+    </select>
+
+    <resultMap id="getOrdersById" type="com.rewardshoop.response.OrderDetailResponse">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="order_number" property="orderNumber" javaType="java.lang.String"/>
+        <result column="desc" property="stateDesc" javaType="java.lang.String"/>
+        <result column="state" property="state" javaType="java.lang.Integer"/>
+        <result column="total_consume_point" property="totalConsumePoint" javaType="java.lang.Integer"/>
+        <result column="total_prepay_point" property="totalPrepayPoint" javaType="java.lang.Integer"/>
+        <result column="logistics_number" property="logisticsNumber" javaType="java.lang.String"/>
+        <result column="name" property="addrName" javaType="java.lang.String"/>
+        <result column="phone" property="addrPhone" javaType="java.lang.String"/>
+        <result column="province" property="province" javaType="java.lang.String"/>
+        <result column="city" property="city" javaType="java.lang.String"/>
+        <result column="area" property="area" javaType="java.lang.String"/>
+        <result column="street" property="street" javaType="java.lang.String"/>
+        <result column="description" property="description" javaType="java.lang.String"/>
+        <result column="add_time" property="addTime" javaType="java.lang.Integer"/>
+        <result column="pay_time" property="payTime" javaType="java.lang.Integer"/>
+        <result column="success_time" property="successTime" javaType="java.lang.Integer"/>
+        <collection property="goods" ofType="com.rewardshoop.response.OrdersGoods">
+            <id column="gId" property="id" javaType="java.lang.Integer"/>
+            <id column="pay_type" property="payWay" javaType="java.lang.Integer"/>
+            <id column="pwdesc" property="payWayDesc" javaType="java.lang.String"/>
+            <result column="num" property="num" javaType="java.lang.Integer"/>
+            <result column="money_count" property="pointCount" javaType="java.lang.Integer"/>
+            <result column="pic" property="pic" javaType="java.lang.String"/>
+            <result column="goods_name" property="goodsName" javaType="java.lang.String"/>
+            <result column="type_id" property="typeId" javaType="java.lang.Integer"/>
+            <result column="type_name" property="typeName" javaType="java.lang.String"/>
+            <result column="consume_point" property="consumePoint" javaType="java.lang.Integer"/>
+            <result column="prepay_point" property="prepayPoint" javaType="java.lang.Integer"/>
+        </collection>
+    </resultMap>
+    <select id="getOrdersById" resultMap="getOrdersById">
+        SELECT
+            o.`id`,
+            o.`order_number`,
+            od.`num`,
+            o.`state`,
+            o.`logistics_number`,
+            osd.`desc`,
+            o.`total_consume_point`,
+            o.`total_prepay_point`,
+            o.`add_time`,
+            o.`pay_time`,
+            o.`success_time`,
+            a.`name`,
+            a.`phone`,
+            a.`province`,
+            a.`city`,
+            a.`area`,
+            a.`street`,
+            a.`description`,
+            gpwd.`desc` pwdesc,
+            od.`pay_type`,
+            od.`money_count`,
+            g.`id`      gId,
+            g.`pic`,
+            g.`goods_name`,
+            g.`type_id`,
+            t.`type_name`,
+            g.`consume_point`,
+            g.`prepay_point`
+        FROM
+            orders o,
+            orders_detail od,
+            orders_state_desc osd,
+            goods g, TYPE t,
+            goods_pay_way_desc gpwd,
+            address a
+        WHERE
+            o.`id` = od.`orders_id` AND
+            o.`state` = osd.`state` AND
+            od.`goods_id` = g.`id` AND
+            g.`type_id` = t.`id` AND
+            od.`pay_type` = gpwd.`pay_way` AND
+            a.`add_id`=o.`add_id` AND
+            a.`user_id` = o.`user_id` AND
+            o.`id` = #{id}
+    </select>
+
+    <insert id="insertOrders" useGeneratedKeys="true" keyProperty="id" parameterType="com.rewardshoop.model.Orders">
+        INSERT INTO
+            orders (
+                order_number,
+                user_id,
+                add_time,
+                add_id,
+                state,
+                total_consume_point,
+                total_prepay_point,
+                remark
+            ) VALUES (
+            #{orderNumber},
+            #{userId},
+            #{addTime},
+            #{addId},
+            #{state},
+            #{totalConsumePoint},
+            #{totalPrepayPoint},
+            #{remark}
+        )
+    </insert>
+
+    <insert id="insertOrdersDetail" parameterType="java.util.List">
+        INSERT INTO
+        orders_detail(
+        orders_id,
+        order_number,
+        goods_id,
+        pay_type,
+        money_count,
+        num
+        )VALUES
+        <foreach collection="list" item="list" index="index" separator=",">
+            (
+            #{list.ordersId},
+            #{list.orderNumber},
+            #{list.goodsId},
+            #{list.payType},
+            #{list.moneyCount},
+            #{list.num}
+            )
+        </foreach>
+    </insert>
+</mapper>
