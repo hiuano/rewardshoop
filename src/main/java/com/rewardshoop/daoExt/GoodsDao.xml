@@ -71,4 +71,39 @@
         WHERE
             g.id=gd.goods_id AND g.state=1 AND g.id = #{id};
     </select>
+
+    <resultMap id="getGoodsLimitLeftValue" type="com.rewardshoop.pojo.GoodsLimitPojo">
+        <result column="leftValue" property="leftValue" javaType="java.lang.Integer"/>
+        <result column="limit_num" property="limitNum" javaType="java.lang.Integer"/>
+        <result column="goods_name" property="goodsName" javaType="java.lang.String"/>
+    </resultMap>
+
+    <select id="getGoodsLimitLeftValue" resultMap="getGoodsLimitLeftValue">
+        SELECT
+        limit_num-SUM(num) leftValue,
+        limit_num,
+        goods_name
+        FROM
+            (SELECT
+            od.num
+            FROM
+            orders o
+            LEFT JOIN
+            orders_detail od
+            ON
+            o.`id` = od.`orders_id`
+            WHERE
+            o.`user_id` = #{userId} AND
+            od.`goods_id`=#{goodsId} AND
+            o.`state` !=3) so,
+            (SELECT
+            gl.`limit_num`,
+            g.`goods_name`
+            FROM
+            goods_limit gl,
+            goods g
+            WHERE
+            gl.`goods_id`=#{goodsId} AND
+            g.`id`=gl.`goods_id`) gl;
+    </select>
 </mapper>

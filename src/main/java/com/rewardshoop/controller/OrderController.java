@@ -1,5 +1,6 @@
 package com.rewardshoop.controller;
 
+import com.rewardshoop.exception.CustomizeException;
 import com.rewardshoop.model.OrdersDetail;
 import com.rewardshoop.request.OrdersRequest;
 import com.rewardshoop.request.PaymentRequest;
@@ -54,8 +55,15 @@ public class OrderController {
         int totalConsumePoint = request.getTotalConsumePoint();
         int totalPrepayPoint = request.getTotalPrepayPoint();
         List<OrdersDetail> list = request.getList();
-        int ordersId = orderService.insertOrders(userId, addId, totalConsumePoint, totalPrepayPoint, list);
-        return new ResultResponse(true, ordersId);
+        //限制购买数量,若超出购买限制,service抛异常,controller捕捉
+        try {
+            int ordersId = orderService.insertOrders(userId, addId, totalConsumePoint, totalPrepayPoint, list);
+            return new ResultResponse(true, ordersId);
+        } catch (CustomizeException e) {
+            String errMsg = e.getMessage();
+            return new ResultResponse(false, errMsg);
+        }
+
     }
 
     @RequestMapping(value = "deleteOrdersById", method = RequestMethod.POST)

@@ -13,6 +13,7 @@ import com.rewardshoop.response.OrderDetailResponse;
 import com.rewardshoop.response.OrdersResponse;
 import com.rewardshoop.response.ResultResponse;
 import com.rewardshoop.service.OrderService;
+import com.rewardshoop.service.ServiceUtils;
 import com.rewardshoop.utils.CommonUtil;
 import com.rewardshoop.utils.NetworkUtil;
 import com.rewardshoop.utils.OrderNumberUtil;
@@ -39,6 +40,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private GoodsDetailMapper goodsDetailMapper;
+
+    @Autowired
+    private ServiceUtils serviceUtils;
 
     @Override
     public List<OrdersResponse> getAllOrdersByUserId(int userId) throws Exception {
@@ -73,6 +77,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public int insertOrders(int userId, int addId, int totalConsumePoint, int totalPrepayPoint, List<OrdersDetail> list) throws Exception {
+        int goodsId;
+        int num;
+        for (OrdersDetail ordersDetail : list) {
+            goodsId = ordersDetail.getGoodsId();
+            num = ordersDetail.getNum();
+            ResultResponse response = serviceUtils.checkOverLimit(userId, goodsId, num);
+            if (!response.isState()) {
+                throw new CustomizeException(response.getErrMsg());
+            }
+        }
+
         String orderNumber = OrderNumberUtil.getOrderNumber("RS");
         int ordersId = insertOrders(userId, addId, totalConsumePoint, totalPrepayPoint, orderNumber);
 
