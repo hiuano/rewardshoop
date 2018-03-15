@@ -16,6 +16,9 @@ public class ServiceUtilsImpl implements ServiceUtils {
 
     public ResultResponse checkOverLimit(int userId, int goodsId, int num) throws Exception {
         GoodsLimitPojo pojo = goodsDao.getGoodsLimitLeftValue(userId, goodsId);
+        if (pojo == null) {
+            return new ResultResponse((true));
+        }
         int leftValue;
         //这里如果没有发生订单的话,pojo.getLeftValue是空指针,所以要捕捉以下
         try {
