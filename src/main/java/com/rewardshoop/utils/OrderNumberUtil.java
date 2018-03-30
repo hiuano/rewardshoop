@@ -12,14 +12,15 @@ public class OrderNumberUtil {
 
 
     /**
-     *
      * 订单号长度22位
      *
      * @return
      */
     public synchronized static String getOrderNumber() {
-        if (counter >= 9999) {counter = 0;}
-        String date = new SimpleDateFormat("yyyyMMddHHmmssSSSS").format(new Date());
+        if (counter >= 9999) {
+            counter = 0;
+        }
+        String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
         String sequ = new DecimalFormat("0000").format(counter++);
         StringBuffer buffer = new StringBuffer(date).append(sequ);
         return buffer.toString();
@@ -27,7 +28,6 @@ public class OrderNumberUtil {
 
 
     /**
-     *
      * 订单号加前缀
      *
      * @param str

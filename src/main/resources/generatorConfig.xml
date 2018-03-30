@@ -66,6 +66,6 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="orders"/>
+        <table tableName="orders_state_desc"/>
     </context>
 </generatorConfiguration>

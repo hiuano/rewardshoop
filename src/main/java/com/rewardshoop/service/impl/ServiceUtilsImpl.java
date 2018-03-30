@@ -8,19 +8,30 @@ import com.rewardshoop.service.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
+
 
 @Service("serviceUtils")
 public class ServiceUtilsImpl implements ServiceUtils {
     @Autowired
     private GoodsDao goodsDao;
 
+    /**
+     * 检查有没超过限制购买数量
+     *
+     * @param userId
+     * @param goodsId
+     * @param num
+     * @return
+     * @throws Exception
+     */
     public ResultResponse checkOverLimit(int userId, int goodsId, int num) throws Exception {
         GoodsLimitPojo pojo = goodsDao.getGoodsLimitLeftValue(userId, goodsId);
         if (pojo == null) {
             return new ResultResponse((true));
         }
         int leftValue;
-        //这里如果没有发生订单的话,pojo.getLeftValue是空指针,所以要捕捉以下
+        //这里如果没有发生订单的话,pojo.getLeftValue是空指针,所以要捕捉一下
         try {
             leftValue = pojo.getLeftValue();
         } catch (NullPointerException e) {
@@ -33,4 +44,5 @@ public class ServiceUtilsImpl implements ServiceUtils {
             return new ResultResponse(true);
         }
     }
+
 }

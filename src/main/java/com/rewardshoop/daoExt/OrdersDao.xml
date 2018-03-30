@@ -207,11 +207,167 @@
             od.`goods_id` = g.`id` AND
             g.`type_id` = t.`id` AND
             od.`pay_type` = gpwd.`pay_way` AND
-            a.`add_id`=o.`add_id` AND
+            a.`add_id` = o.`add_id` AND
             a.`user_id` = o.`user_id` AND
             o.`id` = #{id}
     </select>
 
+
+    <resultMap id="getAllOrdersListByAdmin" type="com.rewardshoop.response.OrdersAdminResponse">
+        <id column="oId" property="id" javaType="java.lang.Integer"/>
+        <result column="orderNumber" property="orderNumber" javaType="java.lang.String"/>
+        <result column="add_time" property="addTime" javaType="java.lang.Integer"/>
+        <result column="pay_time" property="payTime" javaType="java.lang.Integer"/>
+        <result column="success_time" property="successTiome" javaType="java.lang.Integer"/>
+        <result column="logistics_number" property="logisticsNumber" javaType="java.lang.String"/>
+        <result column="state" property="state" javaType="java.lang.Integer"/>
+        <result column="total_consume_point" property="totalConsumePoint" javaType="java.lang.Integer"/>
+        <result column="total_prepay_point" property="totalPrepayPoint" javaType="java.lang.Integer"/>
+        <result column="userName" property="userName" javaType="java.lang.String"/>
+        <result column="userPhone" property="userPhone" javaType="java.lang.String"/>
+        <result column="prepaidCard" property="prepaidCard" javaType="java.lang.String"/>
+        <result column="province" property="province" javaType="java.lang.String"/>
+        <result column="city" property="city" javaType="java.lang.String"/>
+        <result column="area" property="area" javaType="java.lang.String"/>
+        <result column="strees" property="strees" javaType="java.lang.String"/>
+        <result column="description" property="description" javaType="java.lang.String"/>
+        <result column="aname" property="addName" javaType="java.lang.String"/>
+        <result column="aphone" property="addPhone" javaType="java.lang.String"/>
+        <collection property="list" ofType="com.rewardshoop.response.OrdersAdminGoods">
+            <id column="odId" property="id" javaType="java.lang.Integer"/>
+            <id column="ordersId" property="ordersId" javaType="java.lang.Integer"/>
+            <result column="moneyCount" property="moneyCount" javaType="java.lang.Integer"/>
+            <result column="num" property="num" javaType="java.lang.Integer"/>
+            <result column="payType" property="payType" javaType="java.lang.Integer"/>
+            <result column="goodsId" property="goodsId" javaType="java.lang.Integer"/>
+            <result column="goodsName" property="goodsName" javaType="java.lang.String"/>
+        </collection>
+    </resultMap>
+    <select id="getAllOrdersListByAdmin" parameterType="com.rewardshoop.pojo.OrdersAdminQueryPojo"
+            resultMap="getAllOrdersListByAdmin">
+        SELECT
+        ov.oId,
+        ov.add_time,
+        ov.orderNumber,
+        ov.pay_time,
+        ov.success_time,
+        ov.logistics_number,
+        ov.state,
+        ov.total_consume_point,
+        ov.total_prepay_point,
+        ov.userName,
+        ov.userPhone,
+        ov.prepaidCard,
+        ov.province,
+        ov.city,
+        ov.area,
+        ov.strees,
+        ov.description,
+        ov.aname,
+        ov.aphone,
+        odv.odId,
+        odv.ordersId,
+        odv.moneyCount,
+        odv.num,
+        odv.payType,
+        odv.goodsId,
+        odv.goodsName
+        FROM
+        (SELECT
+        o.`id` oId,
+        o.`add_time` add_time,
+        o.`order_number` orderNumber,
+        o.`pay_time` pay_time,
+        o.`success_time` success_time,
+        o.`logistics_number` logistics_number,
+        o.`state` state,
+        o.`total_consume_point` total_consume_point,
+        o.`total_prepay_point` total_prepay_point,
+        u.`user_name` userName,
+        u.`user_phone` userPhone,
+        xu.`prepaid_card` prepaidCard,
+        a.`province` province,
+        a.`city` city,
+        a.`area` `area`,
+        a.`street` strees,
+        a.`description` description,
+        a.`name` aname,
+        a.`phone` aphone
+        <include refid="getAllOrdersListByAdminExample"/>
+        <if test='pageSize != 0'>
+            LIMIT #{startRow},#{pageSize}
+        </if>
+        ) ov
+        LEFT JOIN
+        (SELECT
+        od.`id` odId,
+        od.`orders_id` ordersId,
+        od.`money_count` moneyCount,
+        od.`num` num,
+        od.`pay_type` payType,
+        od.`goods_id` goodsId,
+        g.`goods_name` goodsName
+        FROM
+        rewardshoop.orders_detail od,
+        rewardshoop.goods g
+        WHERE
+        od.`goods_id` = g.`id`) odv
+        ON
+        ov.oId = odv.ordersId
+        where 1=1
+        <if test='ordersAdminQueryPojo.goodsName != null'>
+            and goodsName LIKE #{ordersAdminQueryPojo.goodsName}
+        </if>
+        ORDER BY
+        ov.add_time;
+    </select>
+    <select id="countAllOrdersListByAdmin" parameterType="com.rewardshoop.pojo.OrdersAdminQueryPojo"
+            resultType="java.lang.Integer">
+        SELECT count(*)
+        <include refid="getAllOrdersListByAdminExample"/>
+    </select>
+    <sql id="getAllOrdersListByAdminExample">
+        FROM
+        rewardshoop.orders o,
+        rewardshoop.USER u,
+        starshine_usercenter.`xg_users` xu,
+        rewardshoop.address a
+        WHERE
+        o.`user_id` = u.`id` AND
+        o.`user_id` = xu.`id` AND
+        o.`user_id` = a.`user_id` AND
+        o.`add_id` = a.`add_id`
+        <if test='ordersAdminQueryPojo.addTimeStart != null'>
+            and o.add_time <![CDATA[ >= ]]> #{ordersAdminQueryPojo.addTimeStart}
+        </if>
+        <if test='ordersAdminQueryPojo.addTimeEnd != null'>
+            and o.add_time <![CDATA[ <= ]]> #{ordersAdminQueryPojo.addTimeEnd}
+        </if>
+        <if test='ordersAdminQueryPojo.state > 0'>
+            and o.`state` =#{ordersAdminQueryPojo.state}
+        </if>
+        <if test='ordersAdminQueryPojo.userName != null'>
+            and u.user_name LIKE #{ordersAdminQueryPojo.userName}
+        </if>
+        <if test='ordersAdminQueryPojo.userPhone != null'>
+            and u.`user_phone` LIKE #{ordersAdminQueryPojo.userPhone}
+        </if>
+        <if test='ordersAdminQueryPojo.prepaidCard != null'>
+            and xu.`prepaid_card` LIKE #{ordersAdminQueryPojo.prepaidCard}
+        </if>
+        <if test='ordersAdminQueryPojo.orderNumber != null'>
+            and o.`order_number` LIKE #{ordersAdminQueryPojo.orderNumber}
+        </if>
+        ORDER BY o.`id`
+    </sql>
+
+    <select id="getOrdersStateDesc" resultType="com.rewardshoop.model.OrdersStateDesc">
+        SELECT
+            `state`,
+            `desc`
+        FROM orders_state_desc
+        ORDER BY `state` ASC
+    </select>
     <insert id="insertOrders" useGeneratedKeys="true" keyProperty="id" parameterType="com.rewardshoop.model.Orders">
         INSERT INTO
             orders (

@@ -11,6 +11,6 @@
     <title>错误页面</title>
 </head>
 <body>
-    ${msg}
+    ${errMsg}
 </body>
 </html>

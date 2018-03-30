@@ -5,10 +5,7 @@ import com.rewardshoop.dao.GoodsDetailMapper;
 import com.rewardshoop.dao.OrdersDetailMapper;
 import com.rewardshoop.daoExt.OrdersDao;
 import com.rewardshoop.exception.CustomizeException;
-import com.rewardshoop.model.GoodsDetail;
-import com.rewardshoop.model.Orders;
-import com.rewardshoop.model.OrdersDetail;
-import com.rewardshoop.model.OrdersDetailExample;
+import com.rewardshoop.model.*;
 import com.rewardshoop.response.OrderDetailResponse;
 import com.rewardshoop.response.OrdersResponse;
 import com.rewardshoop.response.ResultResponse;
@@ -29,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service("OrderService")
-@Transactional(rollbackFor = {CustomizeException.class})
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -154,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
         String userId = orders.getUserId() + "";
         String totalConsumePoint = orders.getTotalConsumePoint() + "";
         String totalPrepayPoint = orders.getTotalPrepayPoint() + "";
+        String orderNumber = orders.getOrderNumber();
 
         OrdersDetailExample example = new OrdersDetailExample();
         example.createCriteria().andOrdersIdEqualTo(ordersId);
@@ -164,7 +162,9 @@ public class OrderServiceImpl implements OrderService {
         try {
             for (OrdersDetail ordersDetail : list) {
                 goodsId = ordersDetail.getGoodsId();
-                GoodsDetail goodsDetail = goodsDetailMapper.selectByPrimaryKey(goodsId);
+                GoodsDetailExample goodsDetailExample = new GoodsDetailExample();
+                goodsDetailExample.createCriteria().andGoodsIdEqualTo(goodsId);
+                GoodsDetail goodsDetail = goodsDetailMapper.selectByExample(goodsDetailExample).get(0);
                 stock = goodsDetail.getStock();
                 num = ordersDetail.getNum();
                 if (num > stock) {
@@ -174,23 +174,17 @@ public class OrderServiceImpl implements OrderService {
                     goodsDetailMapper.updateByPrimaryKey(goodsDetail);
                 }
             }
-        } catch (CustomizeException e) {
-            //手动回滚
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return new ResultResponse(false, e.getMessage());
-        }
-
-        String url = CommonUtil.stitching(CommonConst.Starshine_Center_Url, "api/withDrawByType");
-        Map<String, String> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("payPwd", payPwd);
-        map.put("totalConsumePoint", totalConsumePoint);
-        map.put("totalPrepayPoint", totalPrepayPoint);
-        String out = JSONObject.fromObject(map).toString();
-        String result = NetworkUtil.httpsRequest(url, "POST", out);
-        JSONObject json = JSONObject.fromObject(result);
-        boolean flag = json.getBoolean("state");
-        try {
+            String url = CommonUtil.stitching(CommonConst.Starshine_Center_Url, "api/withDrawByType");
+            Map<String, String> map = new HashMap<>();
+            map.put("userId", userId);
+            map.put("payPwd", payPwd);
+            map.put("totalConsumePoint", totalConsumePoint);
+            map.put("totalPrepayPoint", totalPrepayPoint);
+            map.put("orderNumber", orderNumber);
+            String out = JSONObject.fromObject(map).toString();
+            String result = NetworkUtil.httpsRequest(url, "POST", out);
+            JSONObject json = JSONObject.fromObject(result);
+            boolean flag = json.getBoolean("state");
             if (flag) {
                 orders.setPayTime(TimeUtil.currentTime());
                 orders.setState(2);

@@ -11,7 +11,10 @@
        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
     <!-- 扫描web相关的bean -->
+    <!-- 这是小程序的controller -->
     <context:component-scan base-package="com.rewardshoop.controller"/>
+    <!-- 这是后台管理页面的controller -->
+    <context:component-scan base-package="com.rewardshoop.adminController"/>
 
     <!-- 开启SpringMVC注解模式 -->
     <mvc:annotation-driven validator="validator"/>
@@ -25,6 +28,7 @@
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
+
 
     <!-- 异常处理器 -->
     <!--<bean class="com.rewardshoop.exception.CustomizeExceptionResolver"/>-->
@@ -50,5 +54,12 @@
         <property name="defaultEncoding" value="utf-8"/>
         <!-- 对资源文件内容缓存时间。单位：秒 -->
         <property name="cacheSeconds" value="120"/>
+    </bean>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 设置默认编码 -->
+        <property name="defaultEncoding" value="utf-8"/>
+        <!-- 上传图片最大大小-->
+        <property name="maxUploadSize" value="${file.maxUploadSize}"/>
     </bean>
 </beans>

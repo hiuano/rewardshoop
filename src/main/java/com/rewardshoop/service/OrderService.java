@@ -90,10 +90,7 @@ public interface OrderService {
     /**
      * 调用会员中心支付接口
      *
-     * @param userId
      * @param payPwd
-     * @param totalConsumePoint
-     * @param totalPrepayPoint
      * @param ordersId
      * @return
      * @throws Exception
