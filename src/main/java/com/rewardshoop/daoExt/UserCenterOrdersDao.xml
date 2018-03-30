@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.rewardshoop.daoExt.UserCenterOrdersDao">
+    <resultMap id="getAllEnjoyStarOrdersListByAdmin" type="com.rewardshoop.response.EnjorStarOrdersResponse">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <id column="add_time" property="addTime" javaType="java.lang.Integer"/>
+        <id column="user_name" property="userName" javaType="java.lang.String"/>
+        <id column="user_phone" property="userPhone" javaType="java.lang.String"/>
+        <id column="prepaid_card" property="prepaidCard" javaType="java.lang.String"/>
+        <id column="pay_status" property="payStatus" javaType="java.lang.Integer"/>
+        <id column="money_count" property="moneyCount" javaType="java.lang.Integer"/>
+        <id column="integral_deductible" property="integralDeductible" javaType="java.lang.Integer"/>
+        <id column="goods_title" property="goodsTitle" javaType="java.lang.String"/>
+        <id column="buy_num" property="buyNum" javaType="java.lang.Integer"/>
+        <id column="order_number" property="orderNumber" javaType="java.lang.String"/>
+        <id column="commission" property="commission" javaType="java.lang.Integer"/>
+    </resultMap>
+    <select id="getAllEnjoyStarOrdersListByAdmin" parameterType="com.rewardshoop.pojo.UserCenterOrdersQueryPojo"
+            resultMap="getAllEnjoyStarOrdersListByAdmin">
+        SELECT
+        o.`id`,
+        o.`add_time`,
+        u.`user_name`,
+        u.`user_phone`,
+        u.`prepaid_card`,
+        o.`pay_status`,
+        o.`money_count`,
+        o.`integral_deductible`,
+        o.`goods_title`,
+        o.`buy_num`,
+        o.`order_number` ,
+        o.`commission`
+        <include refid="getAllEnjoyStarOrdersListByExample"/>
+        <if test='pageSize != 0'>
+            LIMIT #{startRow},#{pageSize}
+        </if>
+    </select>
+    <select id="countAllEnjoyStarOrdersListByAdmin" parameterType="com.rewardshoop.pojo.UserCenterOrdersQueryPojo"
+            resultType="java.lang.Integer">
+        SELECT count(*)
+        <include refid="getAllEnjoyStarOrdersListByExample"/>
+    </select>
+    <sql id="getAllEnjoyStarOrdersListByExample">
+        FROM
+        starshine_usercenter.xg_orders
+        o,starshine_usercenter.`xg_users` u
+        WHERE
+        o.`user_id`=u.`id`
+        <if test='userCenterOrdersQueryPojo.addTimeStart != null'>
+            and o.`add_time` <![CDATA[ >= ]]> #{userCenterOrdersQueryPojo.addTimeStart}
+        </if>
+        <if test='userCenterOrdersQueryPojo.addTimeEnd != null'>
+            and o.`add_time` <![CDATA[ <= ]]> #{userCenterOrdersQueryPojo.addTimeEnd}
+        </if>
+        <if test='userCenterOrdersQueryPojo.payStatus > 0'>
+            and o.`pay_status` =#{userCenterOrdersQueryPojo.payStatus}
+        </if>
+        <if test='userCenterOrdersQueryPojo.userName != null'>
+            and u.`user_name` LIKE #{userCenterOrdersQueryPojo.userName}
+        </if>
+        <if test='userCenterOrdersQueryPojo.userPhone != null'>
+            and u.`user_phone` LIKE #{userCenterOrdersQueryPojo.userPhone}
+        </if>
+        <if test='userCenterOrdersQueryPojo.orderNumber != null'>
+            and xu.`order_number` LIKE #{userCenterOrdersQueryPojo.orderNumber}
+        </if>
+        ORDER BY o.`id`
+    </sql>
+
+</mapper>
