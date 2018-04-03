@@ -2,6 +2,7 @@ package com.rewardshoop.service;
 
 import com.rewardshoop.exception.CustomizeException;
 import com.rewardshoop.model.OrdersDetail;
+import com.rewardshoop.response.InstantQueryResponse;
 import com.rewardshoop.response.OrderDetailResponse;
 import com.rewardshoop.response.OrdersResponse;
 import com.rewardshoop.response.ResultResponse;
@@ -105,4 +106,13 @@ public interface OrderService {
      * @throws Exception
      */
     public OrderDetailResponse getOrdersById(int id) throws Exception;
+
+    /**
+     * 通过orderID获取物流信息
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public InstantQueryResponse getLogisticsInfoByOrderId(int id) throws Exception;
 }

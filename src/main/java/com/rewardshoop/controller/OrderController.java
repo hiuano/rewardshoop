@@ -4,10 +4,12 @@ import com.rewardshoop.exception.CustomizeException;
 import com.rewardshoop.model.OrdersDetail;
 import com.rewardshoop.request.OrdersRequest;
 import com.rewardshoop.request.PaymentRequest;
+import com.rewardshoop.response.InstantQueryResponse;
 import com.rewardshoop.response.OrderDetailResponse;
 import com.rewardshoop.response.OrdersResponse;
 import com.rewardshoop.response.ResultResponse;
 import com.rewardshoop.service.OrderService;
+import com.rewardshoop.utils.EXDeliveryUtil;
 import com.rewardshoop.validated.Payment;
 import com.rewardshoop.validated.insertOrders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +119,33 @@ public class OrderController {
     public ResultResponse getOrdersById(int id) throws Exception {
         OrderDetailResponse orderDetailResponse = orderService.getOrdersById(id);
         return new ResultResponse(true, orderDetailResponse);
+    }
+
+    /**
+     * 获取物流信息
+     *
+     * @param logisticsNumber
+     * @return
+     * @throws Exception
+     */
+    @ResponseBody
+    @RequestMapping(value = "getLogisticsInfoByNumber", method = RequestMethod.GET)
+    public ResultResponse getLogisticsInfoByNumber(String logisticsNumber) throws Exception {
+        InstantQueryResponse instantQueryResponse = EXDeliveryUtil.instantQuery(logisticsNumber);
+        return new ResultResponse(true, instantQueryResponse);
+    }
+
+    /**
+     * 根据orderID获取物流信息
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @ResponseBody
+    @RequestMapping(value = "getLogisticsInfoByOrderId", method = RequestMethod.GET)
+    public ResultResponse getLogisticsInfoByOrderId(int id) throws Exception {
+        InstantQueryResponse instantQueryResponse = orderService.getLogisticsInfoByOrderId(id);
+        return new ResultResponse(true, instantQueryResponse);
     }
 }

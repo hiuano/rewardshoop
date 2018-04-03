@@ -6,15 +6,13 @@ import com.rewardshoop.dao.OrdersDetailMapper;
 import com.rewardshoop.daoExt.OrdersDao;
 import com.rewardshoop.exception.CustomizeException;
 import com.rewardshoop.model.*;
+import com.rewardshoop.response.InstantQueryResponse;
 import com.rewardshoop.response.OrderDetailResponse;
 import com.rewardshoop.response.OrdersResponse;
 import com.rewardshoop.response.ResultResponse;
 import com.rewardshoop.service.OrderService;
 import com.rewardshoop.service.ServiceUtils;
-import com.rewardshoop.utils.CommonUtil;
-import com.rewardshoop.utils.NetworkUtil;
-import com.rewardshoop.utils.OrderNumberUtil;
-import com.rewardshoop.utils.TimeUtil;
+import com.rewardshoop.utils.*;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -213,5 +211,12 @@ public class OrderServiceImpl implements OrderService {
         detailResponse.setPayDate(payTime == null ? null : TimeUtil.currentTimeToDate(payTime));
         detailResponse.setSuccessDate(sucessTime == null ? null : TimeUtil.currentTimeToDate(sucessTime));
         return detailResponse;
+    }
+
+    @Override
+    public InstantQueryResponse getLogisticsInfoByOrderId(int id) throws Exception {
+        Orders orders = ordersDao.selectByPrimaryKey(id);
+        String logisticsNumber = orders.getLogisticsNumber();
+        return EXDeliveryUtil.instantQuery(logisticsNumber);
     }
 }

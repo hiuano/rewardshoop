@@ -12,6 +12,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.*;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EncryptionUtil {
 
@@ -37,7 +39,12 @@ public class EncryptionUtil {
      * @throws Exception
      */
     public static String encryptBASE64(byte[] key) throws Exception {
-        return (new BASE64Encoder()).encodeBuffer(key);
+        String result = (new BASE64Encoder()).encodeBuffer(key);
+        //result在加密后,后面会有多余的"\n\r",这里是用来处理掉多余的\n\r;
+        Pattern p = Pattern.compile("\t|\r|\n");
+        Matcher m = p.matcher(result);
+        result = m.replaceAll("");
+        return result;
     }
 
     /**
@@ -417,8 +424,8 @@ public class EncryptionUtil {
     /**
      * DES加密
      *
-     * @param key 秘钥
-     * @param content     加密主体
+     * @param key     秘钥
+     * @param content 加密主体
      * @return
      */
     public static String DESEncode(String key, String content) {
@@ -446,8 +453,8 @@ public class EncryptionUtil {
     /**
      * DES解密
      *
-     * @param key 秘钥
-     * @param content     解密主体
+     * @param key     秘钥
+     * @param content 解密主体
      * @return
      */
     public static String DESDncode(String key, String content) {
