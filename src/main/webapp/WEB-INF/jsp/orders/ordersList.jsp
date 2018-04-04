@@ -35,7 +35,7 @@
 
                 $("a[rel='load-content']").click(function (e) {
                     e.preventDefault();
-                    var url = $(this).attr("href");
+                    let url = $(this).attr("href");
                     $.get(url, function (data) {
                         $(".content .mCSB_container").append(data); //load new content inside .mCSB_container
                         //scroll-to appended content
@@ -52,6 +52,7 @@
                 $("#state").val(${state});
                 //这里控制翻页的默认选择
                 $("#index").val(${index});
+
             });
         })(jQuery);
     </script>

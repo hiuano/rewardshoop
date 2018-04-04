@@ -1,5 +1,6 @@
 package com.rewardshoop.utils;
 
+import com.rewardshoop.cache.LRUCache;
 import com.rewardshoop.constants.EXDeliveryConst;
 import com.rewardshoop.response.InstantQueryResponse;
 import net.sf.json.JSONArray;
@@ -9,9 +10,12 @@ import org.apache.commons.httpclient.NameValuePair;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
- * 快递工具类,希望后者可以写个缓存缓存起来,毕竟每天只可调用30000次
+ * 快递工具类,希望后者可以写个缓存缓存起来,毕竟每天只可调用30000次,
+ * 使用流程是先用一个map,把传入参数都封装好,在调用getRequestData(),把map和方法编号作为参数传入,就行了
  */
 public class EXDeliveryUtil {
 
@@ -19,6 +23,36 @@ public class EXDeliveryUtil {
     private static String EBusinessID = EXDeliveryConst.EBusinessID;
     private static String AppKey = EXDeliveryConst.AppKey;
 
+    /**
+     * 这是缓存机制,实现LRU缓存机制
+     */
+    static class EXDCache {
+        private static LRUCache<String, InstantQueryResponse> map = new LRUCache<>(500);
+        private static int DelayTime = EXDeliveryConst.DelayTime;
+
+        private EXDCache() {
+        }
+
+        static void setCache(final String logisticCode, InstantQueryResponse instantQueryResponse) {
+            map.put(logisticCode, instantQueryResponse);
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    map.remove(logisticCode);
+                }
+            }, DelayTime);
+        }
+
+        static boolean hasCache(String logisticCode) {
+            return map.containsKey(logisticCode);
+
+        }
+
+        static InstantQueryResponse getCache(String logisticCode) {
+            return map.get(logisticCode);
+        }
+    }
 
     private static Map<String, String> getRequestData(Map<String, String> map, String RequestType) throws Exception {
         String requestData = JSONObject.fromObject(map).toString();
@@ -54,6 +88,10 @@ public class EXDeliveryUtil {
      */
     public static InstantQueryResponse instantQuery(String logisticCode) throws Exception {
 
+        if (EXDCache.hasCache(logisticCode)) {
+            return EXDCache.getCache(logisticCode);
+        }
+
         JSONObject jsonObject = logisticCodeRecognition(logisticCode);
         if (!jsonObject.getBoolean("Success")) {
             return new InstantQueryResponse(false, jsonObject.getString("Code"));
@@ -76,6 +114,10 @@ public class EXDeliveryUtil {
         JSONObject json = JSONObject.fromObject(result);
         InstantQueryResponse response = new InstantQueryResponse(json);
         response.setShipperName(shipperName);
+
+        //保存缓存
+        EXDCache.setCache(logisticCode, response);
+
         return response;
     }
 
@@ -86,7 +128,7 @@ public class EXDeliveryUtil {
      * @return
      * @throws Exception
      */
-    public static JSONObject logisticCodeRecognition(String logisticCode) throws Exception {
+    private static JSONObject logisticCodeRecognition(String logisticCode) throws Exception {
         Map<String, String> map = new HashMap<>();
         map.put("LogisticCode", logisticCode);
         map = getRequestData(map, EXDeliveryConst.LogisticCodeRecognitionRequestType);

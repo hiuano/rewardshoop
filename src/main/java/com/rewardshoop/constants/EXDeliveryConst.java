@@ -11,6 +11,12 @@ public class EXDeliveryConst {
      */
     public static String AppKey = "f2a979cb-271f-4936-a026-2c412ee97035";
 
+
+    /**
+     * 每条记录缓存时间
+     */
+    public static Integer DelayTime = 2 * 60 * 60 * 1000;
+
     /**
      * 快递鸟调用API
      */
